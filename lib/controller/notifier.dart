@@ -8,9 +8,14 @@ import 'package:nawgati_calc/models/provider_models/history.dart';
 class CalProvider with ChangeNotifier {
   String expression = '';
   String result = '';
+  List<HisModel> history = Hive.box<HisModel>('history')
+      .values
+      .toList()
+      .reversed
+      .toList()
+      .cast<HisModel>();
 
   void addCharacter(String operator, bool isNumber, BuildContext context) {
-    if (expression == '0') expression = '';
     if (expression == '') {
       // Empty string mein starting with decimal toh automatically add 0 to expression
       if (operator == '.') {
@@ -40,12 +45,21 @@ class CalProvider with ChangeNotifier {
           ..res = result
           ..calculations = expression;
         Hive.box<HisModel>('history').add(hisModel);
+        history = Hive.box<HisModel>('history')
+            .values
+            .toList()
+            .reversed
+            .toList()
+            .cast<HisModel>();
+        notifyListeners();
         // ignore: avoid_print
         print('Saved to history');
       } else {
         expression += operator;
       }
     }
+
+    if (expression == '0') expression = '';
 
     try {
       // Actual operators se replacing ... in the expression
@@ -59,6 +73,7 @@ class CalProvider with ChangeNotifier {
             0, result.length - 2); // removing ".0" from the end result
       }
     } catch (e) {
+      print(">>>>>>>>>>>" + e.toString());
       result = '';
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Some Error occurred'),

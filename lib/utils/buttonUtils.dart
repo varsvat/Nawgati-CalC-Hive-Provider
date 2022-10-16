@@ -16,30 +16,27 @@ class CalculatorButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider =
-        Provider.of<CalProvider>(context, listen: false);
-    final TextStyle? textStyle = Theme.of(context).textTheme.headline6;
-    final mediaQuery = MediaQuery.of(context).size;
+    final provider = Provider.of<CalProvider>(context, listen: false);
+    final TextStyle? textStyle = Theme.of(context).textTheme.headline5;
     return Material(
       color: greyish,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(40.0),
-          onTap: () {
-            provider.addCharacter(
-              character,
-              isNumber,
-              context,
-            );
-            print('pressed');
-          },
-          child: Center(
-            child: Text(
-                    character,
-                    style: textStyle?.copyWith(
-                        color: isColor ? blueSplash : Colors.white),
-                  ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(40.0),
+        onTap: () {
+          provider.addCharacter(
+            character,
+            isNumber,
+            context,
+          );
+          print('pressed');
+        },
+        child: Center(
+          child: Text(
+            character,
+            style: textStyle?.copyWith(
+                color: isColor ? blueSplash : Colors.white,
+                fontWeight: FontWeight.w300,
+                fontSize: 27),
           ),
         ),
       ),
