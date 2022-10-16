@@ -23,21 +23,20 @@ class CalProvider with ChangeNotifier {
 
   void addCharacter(String operator, bool isNumber, BuildContext context) {
     if (expression == '') {
-      // Empty string mein starting with decimal toh automatically add 0 to expression
       if (operator == '.') {
-        expression = '0.';
+        expression =
+            '0.'; // Empty string mein decimal se start karne pe add 0 automatically
       } else if (operator == ' - ') {
         expression = '-';
       } else if (isNumber) {
         expression = operator;
       }
     } else {
-      if (operator == 'C') {
+      if (operator == "C") {
         expression = '';
         result = '';
-      } else if (operator == '⌫') {
+      } else if (operator == "⌫") {
         if (expression.endsWith(' ')) {
-          // Expression ke end mein operator hai but no number toh removing...
           expression = expression.substring(0, expression.length - 3);
         } else {
           expression = expression.substring(0, expression.length - 1);
@@ -45,7 +44,7 @@ class CalProvider with ChangeNotifier {
       } else if (expression.endsWith('.') && operator == '.') {
         return;
       } else if (expression.endsWith(' ') && operator == '.') {
-        expression += '0.';
+        expression = expression + '0.';
       } else if (expression.endsWith(' ') && isNumber == false) {
         expression = expression.substring(0, expression.length - 3) + operator;
       } else if (operator == '=') {
@@ -68,25 +67,28 @@ class CalProvider with ChangeNotifier {
         expression += operator;
       }
     }
-
     if (expression == '0') expression = '';
+    if (expression == '-') expression = '-';
 
     print(">>>>>>>>>>>>>>>>Before try catch");
-    if (expression == '-') {
-      result = '-';
-    } else if (expression.isNotEmpty) {
-      // Actual operators se replacing ... in the expression
-      var actualExp = expression.replaceAll('÷', '/').replaceAll('×', '*');
-      Parser p = Parser();
-      print("????????????? Before Parsing");
-      Expression exp = p.parse(actualExp);
-      print("????????????? After Parsing");
-      ContextModel cm = ContextModel();
-      result = '${exp.evaluate(EvaluationType.REAL, cm)}';
-      if (result.endsWith('.0')) {
-        result = result.substring(
-            0, result.length - 2); // removing ".0" from the end result
+
+    try {
+      if (expression == '-') {
+        result = '-';
+      } else if (expression != '-' && expression.isNotEmpty) {
+        var privateResult =
+            expression.replaceAll('÷', '/').replaceAll('×', '*');
+        Parser p = Parser();
+        Expression exp = p.parse(privateResult);
+        ContextModel cm = ContextModel();
+        result = '${exp.evaluate(EvaluationType.REAL, cm)}';
+        if (result.endsWith('.0')) {
+          result = result.substring(0, result.length - 2);
+          // Removing 0 from the end result ... agar float value result mein aati hai toh...
+        }
       }
+    } catch (e) {
+      print(e.toString());
     }
 
     notifyListeners();
