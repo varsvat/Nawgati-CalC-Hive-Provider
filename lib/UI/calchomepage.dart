@@ -27,51 +27,86 @@ class _HomePageState extends State<HomePage> {
           body: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              SizedBox(
-                  height: height * .35,
-                  child: Consumer<CalProvider>(
-                    builder: (context, provider, child) {
-                      return ListView.separated(
-                        controller: _controller,
-                        reverse: true,
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.all(10.0),
-                        itemCount: provider.history.length,
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const SizedBox(height: 10),
-                        itemBuilder: (BuildContext context, int i) {
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              SizedBox(
-                                child: Column(
+              Row(
+                children: [
+                  Consumer<CalProvider>(builder: (context, provider, child) {
+                    return SizedBox(
+                      height: height * .35,
+                      // width: 30,
+                      child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: InkWell(
+                            onTap: () {
+                              provider.deleteHistory();
+                            },
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, bottom: 10),
+                              child: Icon(
+                                Icons.delete_outline_outlined,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          )),
+                    );
+                  }),
+                  Expanded(
+                    child: SizedBox(
+                        height: height * .35,
+                        child: Consumer<CalProvider>(
+                          builder: (context, provider, child) {
+                            return ListView.separated(
+                              controller: _controller,
+                              reverse: true,
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.all(10.0),
+                              itemCount: provider.history.length,
+                              separatorBuilder:
+                                  (BuildContext context, int index) =>
+                                      const SizedBox(height: 10),
+                              itemBuilder: (BuildContext context, int i) {
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text(
-                                      provider.history[i].res,
-                                      textAlign: TextAlign.end,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .caption
-                                          ?.copyWith(fontSize: 18),
+                                    SizedBox(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 4.0, top: 8),
+                                            child: Text(
+                                              provider.history[i].res,
+                                              textAlign: TextAlign.end,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .caption
+                                                  ?.copyWith(fontSize: 18),
+                                            ),
+                                          ),
+                                          Text(
+                                            provider.history[i].calculations,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .caption
+                                                ?.copyWith(fontSize: 18),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                    Text(
-                                      provider.history[i].calculations,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .caption
-                                          ?.copyWith(fontSize: 18),
-                                    )
                                   ],
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  )),
+                                );
+                              },
+                            );
+                          },
+                        )),
+                  ),
+                ],
+              ),
               Container(
                 color: Colors.black,
                 width: width,

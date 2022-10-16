@@ -15,11 +15,19 @@ class CalProvider with ChangeNotifier {
       .toList()
       .cast<HisModel>();
 
+  void deleteHistory() {
+    Hive.box<HisModel>('history').clear();
+    history.clear();
+    notifyListeners();
+  }
+
   void addCharacter(String operator, bool isNumber, BuildContext context) {
     if (expression == '') {
       // Empty string mein starting with decimal toh automatically add 0 to expression
       if (operator == '.') {
         expression = '0.';
+      } else if (operator == ' - ') {
+        expression = '-';
       } else if (isNumber) {
         expression = operator;
       }
@@ -41,19 +49,21 @@ class CalProvider with ChangeNotifier {
       } else if (expression.endsWith(' ') && isNumber == false) {
         expression = expression.substring(0, expression.length - 3) + operator;
       } else if (operator == '=') {
-        final hisModel = HisModel()
-          ..res = result
-          ..calculations = expression;
-        Hive.box<HisModel>('history').add(hisModel);
-        history = Hive.box<HisModel>('history')
-            .values
-            .toList()
-            .reversed
-            .toList()
-            .cast<HisModel>();
-        notifyListeners();
-        // ignore: avoid_print
-        print('Saved to history');
+        if (expression != '-') {
+          final hisModel = HisModel()
+            ..res = result
+            ..calculations = expression;
+          Hive.box<HisModel>('history').add(hisModel);
+          history = Hive.box<HisModel>('history')
+              .values
+              .toList()
+              .reversed
+              .toList()
+              .cast<HisModel>();
+          notifyListeners();
+          // ignore: avoid_print
+          print('Saved to history');
+        }
       } else {
         expression += operator;
       }
@@ -61,24 +71,22 @@ class CalProvider with ChangeNotifier {
 
     if (expression == '0') expression = '';
 
-    try {
+    print(">>>>>>>>>>>>>>>>Before try catch");
+    if (expression == '-') {
+      result = '-';
+    } else if (expression.isNotEmpty) {
       // Actual operators se replacing ... in the expression
       var actualExp = expression.replaceAll('÷', '/').replaceAll('×', '*');
       Parser p = Parser();
+      print("????????????? Before Parsing");
       Expression exp = p.parse(actualExp);
+      print("????????????? After Parsing");
       ContextModel cm = ContextModel();
       result = '${exp.evaluate(EvaluationType.REAL, cm)}';
       if (result.endsWith('.0')) {
         result = result.substring(
             0, result.length - 2); // removing ".0" from the end result
       }
-    } catch (e) {
-      print(">>>>>>>>>>>" + e.toString());
-      result = '';
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Some Error occurred'),
-        duration: Duration(milliseconds: 400),
-      ));
     }
 
     notifyListeners();
